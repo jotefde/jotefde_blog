@@ -8,14 +8,29 @@ and open the template in the editor.
     <head>
         <meta charset="UTF-8">
         <title>Heeej</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
     <body>
-        <?php
-        ?>
-        <form method="post" name="form1">
-            <input type="text" value="" name="xD"/>
-            <input type="image" src="public/images/elo.jpg" name="obrazek"/>
-            <input type="submit" value="Send" name="send_post"/>
-        </form>
+        <style>
+            .col-md-1 {
+                background: azure;
+            }
+        </style>
+        <div class="container">
+        <div class="row">
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+  <div class="col-md-1">.col-md-1</div>
+</div>
+        </div>
     </body>
 </html>
