@@ -18,9 +18,14 @@ class Space {
     public function __construct($_name)
     {
         $this->spaceName = $_name;
-        $viewsQuery = Jotefde::DB()->query("SELECT count(*) FROM spaceViews WHERE space_name='$_name'");
+        $viewsQuery = Jotefde::DB()->query("SELECT count(*) FROM space_views WHERE space_name='$_name'");
         $fetch = $viewsQuery->fetch(PDO::FETCH_NUM);
         $this->viewCounter = $fetch[0];
+    }
+    
+    public function Name()
+    {
+        return $this->spaceName;
     }
     
     public function Access( $acc = null )
@@ -85,7 +90,7 @@ class Space {
     
     public function contentFile($path = null)
     {
-        if( @file_exists($path) )
+        if( file_exists($path) )
         {
             $this->contentFile = $path;
             return $path;

@@ -8,12 +8,13 @@ if( !defined("ABSPATH") )
 
 final class Jotefde
 {
-    private static $instance = null;
-    private static $message = "";
-    private static $http_code = 200;
+    private static $instance = null,
+                   $message = "",
+                   $http_code = 200;
     
-    private static $dbdriver;
-    private static $routes;
+    private static $dbdriver,
+                   $routes,
+                   $spaceController;
     
     const FULL_MODE = 0,
           MINIMAL_MODE = 1;
@@ -27,8 +28,12 @@ final class Jotefde
           SPACES_PATH = ABSPATH."/app/spaces";
     
     public $mode;
-    private $layouts;
-    private $siteTitle;
+    
+    private $layoutsList,
+            $layout,
+            $siteTitle,
+            $defaultPage,
+            $modulesLegit;
     
     /*
      * Static methods section
@@ -103,20 +108,42 @@ final class Jotefde
         return self::$routes;
     }
     
+    public static function spaceController()
+    {
+        if( !class_exists("spaceController") ) return false;
+                
+        if( !( self::$spaceController instanceof spaceController) )
+        {
+            self::$spaceController = new spaceController();
+        }
+        return self::$spaceController;
+    }
+    
     /*
      * Private methods section
      */
-    private function __construct()
+    public function __construct()
     {
         $this->required();
-        $this->layouts = [];
+        $this->layoutsList = [];
+        
     }
     
     private function required()
     {
-        
+        /*
+         * Modules
+         */
         require_once ABSPATH.'/app/modules/DBDriver.php';
         require_once ABSPATH.'/app/modules/Routes.php';
+        require_once ABSPATH.'/app/modules/spaceController.php';
+        require_once ABSPATH.'/app/modules/Content.php';
+        
+        /*
+         * Objects
+         */
+        require_once ABSPATH.'/app/objects/Space.php';
+        require_once ABSPATH.'/app/objects/Image.php';
     }
     
     /*
@@ -124,37 +151,23 @@ final class Jotefde
      */
     public function start()
     {
-        if( Jotefde::DB() === false )
-        {
-            Jotefde::message("Cannot load 'DBDriver' module.");
-            return false;
-        }
-        
-        if( Jotefde::Routes() === false )
-        {
-            Jotefde::message("Cannot load 'Routes' module.");
-            return false;
-        }
-        
+        if( !$this->modulesLegit ) return false;
         
         // Layouts
         $layoutsChecker = [];
-        $layoutsChecker[] = $this->registerLayout("Standard", Jotefde::LAYOUTS_PATH."/standard");
+        $layoutsChecker[] = $this->registerLayout("Standard", "/standard");
         
         if(in_array(false, $layoutsChecker) )
         {
             return false;
         }
-        
-        //Init configs from database
-        $configs = $this->initConfigs();
-        $this->siteTitle = $configs["site_title"];
-        
+        $this->layout = $this->defaultLayout();
+        require_once ABSPATH.'/app/spaces.php';
         
         return true;
     }
     
-    private function initConfigs()
+    private function initDBConfigs()
     {
         $configsQuery = Jotefde::DB()->query("SELECT * FROM configs");
         $configs = [];
@@ -181,15 +194,38 @@ final class Jotefde
     
     public function modules()
     {
+        if( Jotefde::DB() === false )
+        {
+            Jotefde::message("Cannot load 'DBDriver' module.");
+            return false;
+        }
+        //Init configs from database
+        $configs = $this->initDBConfigs();
+        $this->siteTitle = $configs["site_title"];
+        $this->defaultPage = $configs["default_page"];
+        
+        if( Jotefde::Routes() === false )
+        {
+            Jotefde::message("Cannot load 'Routes' module.");
+            return false;
+        }
+        
+        if( Jotefde::spaceController() === false )
+        {
+            Jotefde::message("Cannot load 'spaceController' module.");
+            return false;
+        }
+        
+        $this->modulesLegit = true;
     }
     
     public function registerLayout( $name, $path )
     {
-        if(file_exists($path."/layout.php") )
+        if(file_exists(Jotefde::LAYOUTS_PATH.$path."/layout.php") )
         {
-            if( !array_key_exists($name, $this->layouts) )
+            if( !array_key_exists($name, $this->layoutsList) )
             {
-                $this->layouts[$name] = $path;
+                $this->layoutsList[$name] = $path;
                 return true;
             }
         }
@@ -199,21 +235,44 @@ final class Jotefde
     
     public function getLayout($name)
     {
-        if(array_key_exists($name, $this->layouts) )
+        if(array_key_exists($name, $this->layoutsList) )
         {
-            return $this->layouts[$name];
+            return $this->layoutsList[$name];
         }
         return false;
     }
     
     public function defaultLayout()
     {
-        return $this->layouts[0];
+        list($key, $value) = each($this->layoutsList);
+        return $value;
     }
     
     public function getTitle()
     {
         return $this->siteTitle;
     }
-
+    
+    public function defaultPage()
+    {
+        return $this->defaultPage;
+    }
+    
+    public function setLayout($name)
+    {
+        $path = $this->getLayout($name);
+        if( $path )
+        {
+            $this->layout = $path;
+            return true;
+        }
+        trigger_error("Layout '$name' doesn't exists", E_USER_WARNING);
+        return false;
+    }
+    
+    public function show()
+    {
+        include_once Jotefde::spaceController()->getFile();
+        include_once Jotefde::LAYOUTS_PATH."/".$this->layout."/layout.php";
+    }
 }
