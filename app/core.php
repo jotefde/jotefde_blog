@@ -56,7 +56,7 @@ final class Jotefde
             return false;
         }
         
-        $db_connection_result = self::DB()->connect("localhost", "root", "skubi23", "jotefde_blog");
+        $db_connection_result = self::DB()->connect("localhost", "root", "", "jotefde_blog");
         if( $db_connection_result !== true )
         {
             self::message( $db_connection_result->getMessage() );
