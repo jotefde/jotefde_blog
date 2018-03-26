@@ -31,5 +31,5 @@ Content::openDiv("MyDiv1", ".mydivs .container");
     Content::openDiv("MyDiv2", ".mydivs .container");
         Content::A("Dobry Div drugi!", "http://google.pl");
     Content::closeDiv();
-    Content::P("Kurwa tu jeszcze paragraf przyjebany!!!");
+    Content::P("Tu jeszcze paragraf !!!");
 Content::closeDiv();
